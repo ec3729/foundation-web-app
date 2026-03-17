@@ -47,6 +47,7 @@ export default function DataPage() {
   const [atSourceTable, setAtSourceTable] = useState<TableName>("zones");
   const [atImportPreview, setAtImportPreview] = useState<any[] | null>(null);
   const [atLoading, setAtLoading] = useState(false);
+  const [fieldMapping, setFieldMapping] = useState<Record<string, string>>({});
 
   // ─── CSV Export ───
   async function handleCsvExport(table: TableName) {
