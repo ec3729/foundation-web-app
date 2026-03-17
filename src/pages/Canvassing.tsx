@@ -450,7 +450,7 @@ export default function CanvassingApp() {
           setCurrentBusinessIndexWithinStorefront(0);
         } else {
           if (internalSessionId) endSessionMutation.mutate(internalSessionId);
-          else setCurrentStep("complete");
+          else { clearSession(); setCurrentStep("complete"); }
         }
       }
     }
