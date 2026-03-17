@@ -20,6 +20,16 @@ const TABLES = [
 
 type TableName = (typeof TABLES)[number];
 
+const TABLE_COLUMNS: Record<TableName, string[]> = {
+  zones: ["id", "name", "description", "estimated_time"],
+  storefronts: ["id", "storefront_id", "address", "zip_code", "zone_id", "business_ids"],
+  businesses: ["id", "business_id", "business_name", "type", "public_business", "storefront_id", "initial_encounter_made", "notes"],
+  volunteers: ["id", "volunteer_link_id", "first_name", "last_name", "email", "organization", "created_at"],
+  corrections: ["id", "business_id", "storefront_id", "zone_id", "session_link_id", "first_name", "last_name", "email", "organization", "corrected_business_name", "corrected_type", "corrected_public_business", "corrected_notes"],
+  canvassing_sessions: ["id", "volunteer_id", "selected_zones", "session_link_id", "completed", "start_time", "end_time", "total_duration_minutes", "created_at"],
+  volunteer_sessions: ["id", "session_link_id", "volunteer_link_id", "zone_id", "zone_name", "session_start_time", "session_end_time", "businesses_verified", "corrections_made"],
+};
+
 export default function DataPage() {
   const { toast } = useToast();
 
