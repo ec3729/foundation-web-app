@@ -750,6 +750,7 @@ export default function CanvassingApp() {
           <div className="flex justify-center mt-8"><WTCCoinLogo /></div>
         </div>
       </div>
+      </>
     );
   }
 
