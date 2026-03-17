@@ -998,6 +998,7 @@ export default function CanvassingApp() {
               </div>
             </div>
             <button onClick={() => {
+              clearSession();
               setCurrentStep("welcome");
               setVolunteerInfo({ firstName: "", lastName: "", email: "", organization: "" });
               setSelectedZones([]);
