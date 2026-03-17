@@ -116,7 +116,68 @@ export default function CanvassingApp() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
   const [sessionEndData, setSessionEndData] = useState<any>(null);
-  const [sessionStartTimeSet, setSessionStartTimeSet] = useState(false);
+  const [showResumeDialog, setShowResumeDialog] = useState(false);
+  const [pendingResumeData, setPendingResumeData] = useState<PersistedSessionState | null>(null);
+
+  // Check for saved session on mount
+  useEffect(() => {
+    const saved = loadSession();
+    if (saved && saved.currentStep !== "welcome" && saved.currentStep !== "complete") {
+      setPendingResumeData(saved);
+      setShowResumeDialog(true);
+    }
+  }, []);
+
+  // Auto-save session state on changes
+  const persistState = useCallback(() => {
+    if (currentStep === "welcome" || currentStep === "complete") return;
+    saveSession({
+      currentStep,
+      volunteerInfo,
+      selectedZones,
+      currentZone,
+      currentStorefrontIndex,
+      currentBusinessIndexWithinStorefront,
+      corrections,
+      correctionsCount,
+      progress,
+      volunteerData,
+      internalSessionId,
+      sessionId,
+      sessionStartTime: sessionStartTime?.toISOString() || null,
+      sessionStartTimeSet,
+    });
+  }, [currentStep, volunteerInfo, selectedZones, currentZone, currentStorefrontIndex, currentBusinessIndexWithinStorefront, corrections, correctionsCount, progress, volunteerData, internalSessionId, sessionId, sessionStartTime, sessionStartTimeSet]);
+
+  useEffect(() => {
+    persistState();
+  }, [persistState]);
+
+  const handleResumeSession = () => {
+    if (!pendingResumeData) return;
+    setCurrentStep(pendingResumeData.currentStep);
+    setVolunteerInfo(pendingResumeData.volunteerInfo);
+    setSelectedZones(pendingResumeData.selectedZones);
+    setCurrentZone(pendingResumeData.currentZone);
+    setCurrentStorefrontIndex(pendingResumeData.currentStorefrontIndex);
+    setCurrentBusinessIndexWithinStorefront(pendingResumeData.currentBusinessIndexWithinStorefront);
+    setCorrections(pendingResumeData.corrections);
+    setCorrectionsCount(pendingResumeData.correctionsCount);
+    setProgress(pendingResumeData.progress);
+    setVolunteerData(pendingResumeData.volunteerData);
+    setInternalSessionId(pendingResumeData.internalSessionId);
+    setSessionId(pendingResumeData.sessionId);
+    setSessionStartTime(pendingResumeData.sessionStartTime ? new Date(pendingResumeData.sessionStartTime) : null);
+    setSessionStartTimeSet(pendingResumeData.sessionStartTimeSet);
+    setShowResumeDialog(false);
+    setPendingResumeData(null);
+  };
+
+  const handleStartFresh = () => {
+    clearSession();
+    setShowResumeDialog(false);
+    setPendingResumeData(null);
+  };
 
   const generateSessionLinkId = () => {
     const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
