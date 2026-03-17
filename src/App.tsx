@@ -16,6 +16,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<CanvassingApp />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/data" element={<DataPage />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
