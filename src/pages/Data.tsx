@@ -20,6 +20,16 @@ const TABLES = [
 
 type TableName = (typeof TABLES)[number];
 
+const TABLE_COLUMNS: Record<TableName, string[]> = {
+  zones: ["id", "name", "description", "estimated_time"],
+  storefronts: ["id", "storefront_id", "address", "zip_code", "zone_id", "business_ids"],
+  businesses: ["id", "business_id", "business_name", "type", "public_business", "storefront_id", "initial_encounter_made", "notes"],
+  volunteers: ["id", "volunteer_link_id", "first_name", "last_name", "email", "organization", "created_at"],
+  corrections: ["id", "business_id", "storefront_id", "zone_id", "session_link_id", "first_name", "last_name", "email", "organization", "corrected_business_name", "corrected_type", "corrected_public_business", "corrected_notes"],
+  canvassing_sessions: ["id", "volunteer_id", "selected_zones", "session_link_id", "completed", "start_time", "end_time", "total_duration_minutes", "created_at"],
+  volunteer_sessions: ["id", "session_link_id", "volunteer_link_id", "zone_id", "zone_name", "session_start_time", "session_end_time", "businesses_verified", "corrections_made"],
+};
+
 export default function DataPage() {
   const { toast } = useToast();
 
@@ -37,6 +47,7 @@ export default function DataPage() {
   const [atSourceTable, setAtSourceTable] = useState<TableName>("zones");
   const [atImportPreview, setAtImportPreview] = useState<any[] | null>(null);
   const [atLoading, setAtLoading] = useState(false);
+  const [fieldMapping, setFieldMapping] = useState<Record<string, string>>({});
 
   // ─── CSV Export ───
   async function handleCsvExport(table: TableName) {
@@ -122,7 +133,19 @@ export default function DataPage() {
       if (error) throw error;
       if (data.error) throw new Error(data.error);
       setAtImportPreview(data.records);
-      toast({ title: "Fetched from Airtable", description: `${data.count} records loaded. Review and confirm.` });
+      // Auto-map fields with matching names
+      const airtableFields = Object.keys(data.records[0] || {}).filter(k => k !== "airtableId");
+      const dbCols = TABLE_COLUMNS[atTargetTable];
+      const autoMapping: Record<string, string> = {};
+      airtableFields.forEach(field => {
+        if (dbCols.includes(field)) {
+          autoMapping[field] = field;
+        } else {
+          autoMapping[field] = "__skip__";
+        }
+      });
+      setFieldMapping(autoMapping);
+      toast({ title: "Fetched from Airtable", description: `${data.count} records loaded. Map fields and confirm.` });
     } catch (e: any) {
       toast({ title: "Airtable import failed", description: e.message, variant: "destructive" });
     } finally {
@@ -134,11 +157,12 @@ export default function DataPage() {
     if (!atImportPreview || atImportPreview.length === 0) return;
     setAtLoading(true);
     try {
-      // Strip airtableId before inserting
-      const rows = atImportPreview.map(({ airtableId, ...rest }) => {
+      const rows = atImportPreview.map((record) => {
         const out: any = {};
-        for (const [k, v] of Object.entries(rest)) {
-          out[k] = v === "" ? null : v;
+        for (const [airtableField, dbColumn] of Object.entries(fieldMapping)) {
+          if (dbColumn === "__skip__") continue;
+          const val = record[airtableField];
+          out[dbColumn] = val === "" ? null : val;
         }
         if (out.id === null || out.id === undefined) delete out.id;
         return out;
@@ -370,41 +394,51 @@ export default function DataPage() {
                 </div>
 
                 {atImportPreview && (
-                  <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground">
-                      Fetched <strong>{atImportPreview.length}</strong> records. Review below, then confirm import
-                      into <strong>{atTargetTable}</strong>.
-                    </p>
-                    <div className="max-h-48 overflow-auto rounded border">
-                      <table className="w-full text-xs">
-                        <thead>
-                          <tr className="bg-muted">
-                            {Object.keys(atImportPreview[0] || {}).map((col) => (
-                              <th key={col} className="px-2 py-1 text-left font-medium">
-                                {col}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {atImportPreview.slice(0, 5).map((row, i) => (
-                            <tr key={i} className="border-t">
-                              {Object.values(row).map((v, j) => (
-                                <td key={j} className="px-2 py-1 truncate max-w-[150px]">
-                                  {String(v ?? "")}
-                                </td>
+                  <div className="space-y-4">
+                    {/* Field Mapping */}
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">Map Airtable Fields → Database Columns</h4>
+                      <div className="rounded border divide-y max-h-64 overflow-auto">
+                        {Object.keys(fieldMapping).map((airtableField) => (
+                          <div key={airtableField} className="flex items-center gap-3 px-3 py-2">
+                            <span className="text-sm font-mono min-w-[140px] truncate">{airtableField}</span>
+                            <span className="text-muted-foreground text-xs">→</span>
+                            <select
+                              value={fieldMapping[airtableField]}
+                              onChange={(e) =>
+                                setFieldMapping((prev) => ({ ...prev, [airtableField]: e.target.value }))
+                              }
+                              className="flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm flex-1"
+                            >
+                              <option value="__skip__">— Skip —</option>
+                              {TABLE_COLUMNS[atTargetTable].map((col) => (
+                                <option key={col} value={col}>
+                                  {col}
+                                </option>
                               ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                            </select>
+                          </div>
+                        ))}
+                      </div>
                     </div>
+
+                    {/* Preview */}
+                    <p className="text-sm text-muted-foreground">
+                      <strong>{atImportPreview.length}</strong> records will be imported into <strong>{atTargetTable}</strong>.
+                    </p>
+
                     <div className="flex gap-2">
                       <Button onClick={confirmAirtableImport} disabled={atLoading}>
                         {atLoading && <RefreshCw className="h-4 w-4 animate-spin mr-2" />}
                         Confirm Import ({atImportPreview.length} records)
                       </Button>
-                      <Button variant="ghost" onClick={() => setAtImportPreview(null)}>
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          setAtImportPreview(null);
+                          setFieldMapping({});
+                        }}
+                      >
                         Cancel
                       </Button>
                     </div>
