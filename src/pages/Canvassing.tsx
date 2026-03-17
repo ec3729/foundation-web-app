@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   ChevronRight,
@@ -12,6 +12,16 @@ import {
   Mail,
   Briefcase,
 } from "lucide-react";
+import { saveSession, loadSession, clearSession, type PersistedSessionState } from "@/hooks/use-session-persistence";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { WTCCoinLogo, WTCMainLogo, WTCFrame } from "@/components/wtc-branding";
 import { useToast } from "@/hooks/use-toast";
 import type { Volunteer, Zone, Business, StorefrontWithBusinesses } from "@/lib/types";
@@ -107,6 +117,68 @@ export default function CanvassingApp() {
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
   const [sessionEndData, setSessionEndData] = useState<any>(null);
   const [sessionStartTimeSet, setSessionStartTimeSet] = useState(false);
+  const [showResumeDialog, setShowResumeDialog] = useState(false);
+  const [pendingResumeData, setPendingResumeData] = useState<PersistedSessionState | null>(null);
+
+  // Check for saved session on mount
+  useEffect(() => {
+    const saved = loadSession();
+    if (saved && saved.currentStep !== "welcome" && saved.currentStep !== "complete") {
+      setPendingResumeData(saved);
+      setShowResumeDialog(true);
+    }
+  }, []);
+
+  // Auto-save session state on changes
+  const persistState = useCallback(() => {
+    if (currentStep === "welcome" || currentStep === "complete") return;
+    saveSession({
+      currentStep,
+      volunteerInfo,
+      selectedZones,
+      currentZone,
+      currentStorefrontIndex,
+      currentBusinessIndexWithinStorefront,
+      corrections,
+      correctionsCount,
+      progress,
+      volunteerData,
+      internalSessionId,
+      sessionId,
+      sessionStartTime: sessionStartTime?.toISOString() || null,
+      sessionStartTimeSet,
+    });
+  }, [currentStep, volunteerInfo, selectedZones, currentZone, currentStorefrontIndex, currentBusinessIndexWithinStorefront, corrections, correctionsCount, progress, volunteerData, internalSessionId, sessionId, sessionStartTime, sessionStartTimeSet]);
+
+  useEffect(() => {
+    persistState();
+  }, [persistState]);
+
+  const handleResumeSession = () => {
+    if (!pendingResumeData) return;
+    setCurrentStep(pendingResumeData.currentStep);
+    setVolunteerInfo(pendingResumeData.volunteerInfo);
+    setSelectedZones(pendingResumeData.selectedZones);
+    setCurrentZone(pendingResumeData.currentZone);
+    setCurrentStorefrontIndex(pendingResumeData.currentStorefrontIndex);
+    setCurrentBusinessIndexWithinStorefront(pendingResumeData.currentBusinessIndexWithinStorefront);
+    setCorrections(pendingResumeData.corrections);
+    setCorrectionsCount(pendingResumeData.correctionsCount);
+    setProgress(pendingResumeData.progress);
+    setVolunteerData(pendingResumeData.volunteerData);
+    setInternalSessionId(pendingResumeData.internalSessionId);
+    setSessionId(pendingResumeData.sessionId);
+    setSessionStartTime(pendingResumeData.sessionStartTime ? new Date(pendingResumeData.sessionStartTime) : null);
+    setSessionStartTimeSet(pendingResumeData.sessionStartTimeSet);
+    setShowResumeDialog(false);
+    setPendingResumeData(null);
+  };
+
+  const handleStartFresh = () => {
+    clearSession();
+    setShowResumeDialog(false);
+    setPendingResumeData(null);
+  };
 
   const generateSessionLinkId = () => {
     const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -234,6 +306,7 @@ export default function CanvassingApp() {
       }
 
       toast({ title: "Session Ended", description: "Canvassing session completed successfully." });
+      clearSession();
       setCurrentStep("complete");
     },
   });
@@ -377,7 +450,7 @@ export default function CanvassingApp() {
           setCurrentBusinessIndexWithinStorefront(0);
         } else {
           if (internalSessionId) endSessionMutation.mutate(internalSessionId);
-          else setCurrentStep("complete");
+          else { clearSession(); setCurrentStep("complete"); }
         }
       }
     }
@@ -404,6 +477,30 @@ export default function CanvassingApp() {
   };
 
   // ==================== RENDER ====================
+
+  // Resume dialog
+  const resumeDialog = (
+    <Dialog open={showResumeDialog} onOpenChange={setShowResumeDialog}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Resume Previous Session?</DialogTitle>
+          <DialogDescription>
+            You have an unfinished canvassing session
+            {pendingResumeData?.volunteerInfo?.firstName ? ` as ${pendingResumeData.volunteerInfo.firstName}` : ""}.
+            Would you like to continue where you left off?
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="flex gap-2 sm:gap-0">
+          <Button variant="outline" onClick={handleStartFresh}>
+            Start Fresh
+          </Button>
+          <Button onClick={handleResumeSession}>
+            Resume Session
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 
   if (showIntermediateDialog) {
     const storefront = getCurrentStorefront();
@@ -598,7 +695,9 @@ export default function CanvassingApp() {
 
   if (currentStep === "welcome") {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-800 to-slate-900 p-4">
+      <>
+        {resumeDialog}
+        <div className="min-h-screen bg-gradient-to-b from-slate-800 to-slate-900 p-4">
         <div className="max-w-md mx-auto pt-8">
           <div className="text-center mb-8">
             <WTCMainLogo />
@@ -652,6 +751,7 @@ export default function CanvassingApp() {
           <div className="flex justify-center mt-8"><WTCCoinLogo /></div>
         </div>
       </div>
+      </>
     );
   }
 
@@ -898,6 +998,7 @@ export default function CanvassingApp() {
               </div>
             </div>
             <button onClick={() => {
+              clearSession();
               setCurrentStep("welcome");
               setVolunteerInfo({ firstName: "", lastName: "", email: "", organization: "" });
               setSelectedZones([]);
