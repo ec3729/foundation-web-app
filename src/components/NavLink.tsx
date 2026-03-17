@@ -1,28 +1,24 @@
-import { forwardRef, type AnchorHTMLAttributes } from "react";
-import { Link, useLocation } from "wouter";
+import { NavLink as RouterNavLink, NavLinkProps } from "react-router-dom";
+import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
 
-interface NavLinkCompatProps extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "className"> {
-  to: string;
+interface NavLinkCompatProps extends Omit<NavLinkProps, "className"> {
   className?: string;
   activeClassName?: string;
   pendingClassName?: string;
 }
 
 const NavLink = forwardRef<HTMLAnchorElement, NavLinkCompatProps>(
-  ({ className, activeClassName, to, children, ...props }, ref) => {
-    const [location] = useLocation();
-    const isActive = location === to;
-
+  ({ className, activeClassName, pendingClassName, to, ...props }, ref) => {
     return (
-      <Link
-        href={to}
+      <RouterNavLink
         ref={ref}
-        className={cn(className, isActive && activeClassName)}
+        to={to}
+        className={({ isActive, isPending }) =>
+          cn(className, isActive && activeClassName, isPending && pendingClassName)
+        }
         {...props}
-      >
-        {children}
-      </Link>
+      />
     );
   },
 );
