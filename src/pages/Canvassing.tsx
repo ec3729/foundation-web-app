@@ -466,6 +466,7 @@ export default function CanvassingApp() {
       }
     }
     setProgress((prev) => ({ ...prev, completed: prev.completed + 1 }));
+    setOccupancyStatus("Not sure");
   };
 
   const handleGoBack = () => {
