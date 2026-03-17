@@ -129,6 +129,7 @@ export default function CanvassingApp() {
   const [sessionStartTimeSet, setSessionStartTimeSet] = useState(false);
   const [showResumeDialog, setShowResumeDialog] = useState(false);
   const [pendingResumeData, setPendingResumeData] = useState<PersistedSessionState | null>(null);
+  const [occupancyStatus, setOccupancyStatus] = useState("Not sure");
 
   // Check for saved session on mount
   useEffect(() => {
