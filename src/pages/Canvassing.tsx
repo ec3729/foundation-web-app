@@ -378,6 +378,7 @@ export default function CanvassingApp() {
         publicBusiness: business?.publicBusiness || business?.public_business || "",
         notes: business?.notes || "",
         initialEncounterMade: business?.initialEncounterMade || business?.initial_encounter_made || "",
+        occupancyStatus,
       });
       setShowIntermediateDialog(true);
     } else {
