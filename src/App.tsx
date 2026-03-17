@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import CanvassingApp from "./pages/Canvassing";
 import AdminPage from "./pages/Admin";
+import DataPage from "./pages/Data";
 
 const queryClient = new QueryClient();
 
