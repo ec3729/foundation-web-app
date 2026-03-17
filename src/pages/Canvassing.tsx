@@ -116,6 +116,7 @@ export default function CanvassingApp() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
   const [sessionEndData, setSessionEndData] = useState<any>(null);
+  const [sessionStartTimeSet, setSessionStartTimeSet] = useState(false);
   const [showResumeDialog, setShowResumeDialog] = useState(false);
   const [pendingResumeData, setPendingResumeData] = useState<PersistedSessionState | null>(null);
 
