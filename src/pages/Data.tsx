@@ -133,7 +133,19 @@ export default function DataPage() {
       if (error) throw error;
       if (data.error) throw new Error(data.error);
       setAtImportPreview(data.records);
-      toast({ title: "Fetched from Airtable", description: `${data.count} records loaded. Review and confirm.` });
+      // Auto-map fields with matching names
+      const airtableFields = Object.keys(data.records[0] || {}).filter(k => k !== "airtableId");
+      const dbCols = TABLE_COLUMNS[atTargetTable];
+      const autoMapping: Record<string, string> = {};
+      airtableFields.forEach(field => {
+        if (dbCols.includes(field)) {
+          autoMapping[field] = field;
+        } else {
+          autoMapping[field] = "__skip__";
+        }
+      });
+      setFieldMapping(autoMapping);
+      toast({ title: "Fetched from Airtable", description: `${data.count} records loaded. Map fields and confirm.` });
     } catch (e: any) {
       toast({ title: "Airtable import failed", description: e.message, variant: "destructive" });
     } finally {
