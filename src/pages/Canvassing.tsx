@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   ChevronRight,
@@ -12,6 +12,16 @@ import {
   Mail,
   Briefcase,
 } from "lucide-react";
+import { saveSession, loadSession, clearSession, type PersistedSessionState } from "@/hooks/use-session-persistence";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { WTCCoinLogo, WTCMainLogo, WTCFrame } from "@/components/wtc-branding";
 import { useToast } from "@/hooks/use-toast";
 import type { Volunteer, Zone, Business, StorefrontWithBusinesses } from "@/lib/types";
