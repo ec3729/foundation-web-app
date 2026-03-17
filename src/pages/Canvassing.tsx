@@ -477,6 +477,30 @@ export default function CanvassingApp() {
 
   // ==================== RENDER ====================
 
+  // Resume dialog
+  const resumeDialog = (
+    <Dialog open={showResumeDialog} onOpenChange={setShowResumeDialog}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Resume Previous Session?</DialogTitle>
+          <DialogDescription>
+            You have an unfinished canvassing session
+            {pendingResumeData?.volunteerInfo?.firstName ? ` as ${pendingResumeData.volunteerInfo.firstName}` : ""}.
+            Would you like to continue where you left off?
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="flex gap-2 sm:gap-0">
+          <Button variant="outline" onClick={handleStartFresh}>
+            Start Fresh
+          </Button>
+          <Button onClick={handleResumeSession}>
+            Resume Session
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+
   if (showIntermediateDialog) {
     const storefront = getCurrentStorefront();
     const intermediateProgressPercent = progress.total > 0 ? (progress.completed / progress.total) * 100 : 0;
