@@ -306,6 +306,7 @@ export default function CanvassingApp() {
       }
 
       toast({ title: "Session Ended", description: "Canvassing session completed successfully." });
+      clearSession();
       setCurrentStep("complete");
     },
   });
