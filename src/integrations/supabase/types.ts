@@ -14,7 +14,245 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      businesses: {
+        Row: {
+          business_id: string | null
+          business_name: string | null
+          id: number
+          initial_encounter_made: string | null
+          notes: string | null
+          public_business: string | null
+          storefront_id: string | null
+          type: string | null
+        }
+        Insert: {
+          business_id?: string | null
+          business_name?: string | null
+          id?: number
+          initial_encounter_made?: string | null
+          notes?: string | null
+          public_business?: string | null
+          storefront_id?: string | null
+          type?: string | null
+        }
+        Update: {
+          business_id?: string | null
+          business_name?: string | null
+          id?: number
+          initial_encounter_made?: string | null
+          notes?: string | null
+          public_business?: string | null
+          storefront_id?: string | null
+          type?: string | null
+        }
+        Relationships: []
+      }
+      canvassing_sessions: {
+        Row: {
+          completed: boolean | null
+          created_at: string | null
+          end_time: string | null
+          id: number
+          selected_zones: string | null
+          session_link_id: string | null
+          start_time: string | null
+          total_duration_minutes: number | null
+          volunteer_id: number | null
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string | null
+          end_time?: string | null
+          id?: number
+          selected_zones?: string | null
+          session_link_id?: string | null
+          start_time?: string | null
+          total_duration_minutes?: number | null
+          volunteer_id?: number | null
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string | null
+          end_time?: string | null
+          id?: number
+          selected_zones?: string | null
+          session_link_id?: string | null
+          start_time?: string | null
+          total_duration_minutes?: number | null
+          volunteer_id?: number | null
+        }
+        Relationships: []
+      }
+      corrections: {
+        Row: {
+          business_id: string | null
+          corrected_business_name: string
+          corrected_notes: string
+          corrected_public_business: string
+          corrected_type: string
+          email: string
+          first_name: string
+          id: number
+          last_name: string
+          organization: string | null
+          session_link_id: string | null
+          storefront_id: string | null
+          zone_id: number | null
+        }
+        Insert: {
+          business_id?: string | null
+          corrected_business_name: string
+          corrected_notes: string
+          corrected_public_business: string
+          corrected_type: string
+          email: string
+          first_name: string
+          id?: number
+          last_name: string
+          organization?: string | null
+          session_link_id?: string | null
+          storefront_id?: string | null
+          zone_id?: number | null
+        }
+        Update: {
+          business_id?: string | null
+          corrected_business_name?: string
+          corrected_notes?: string
+          corrected_public_business?: string
+          corrected_type?: string
+          email?: string
+          first_name?: string
+          id?: number
+          last_name?: string
+          organization?: string | null
+          session_link_id?: string | null
+          storefront_id?: string | null
+          zone_id?: number | null
+        }
+        Relationships: []
+      }
+      storefronts: {
+        Row: {
+          address: string
+          business_ids: string | null
+          id: number
+          storefront_id: string | null
+          zip_code: string | null
+          zone_id: number | null
+        }
+        Insert: {
+          address: string
+          business_ids?: string | null
+          id?: number
+          storefront_id?: string | null
+          zip_code?: string | null
+          zone_id?: number | null
+        }
+        Update: {
+          address?: string
+          business_ids?: string | null
+          id?: number
+          storefront_id?: string | null
+          zip_code?: string | null
+          zone_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "storefronts_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      volunteer_sessions: {
+        Row: {
+          businesses_verified: number | null
+          corrections_made: number | null
+          id: number
+          session_end_time: string
+          session_link_id: string | null
+          session_start_time: string
+          volunteer_link_id: string | null
+          zone_id: number | null
+          zone_name: string
+        }
+        Insert: {
+          businesses_verified?: number | null
+          corrections_made?: number | null
+          id?: number
+          session_end_time: string
+          session_link_id?: string | null
+          session_start_time: string
+          volunteer_link_id?: string | null
+          zone_id?: number | null
+          zone_name: string
+        }
+        Update: {
+          businesses_verified?: number | null
+          corrections_made?: number | null
+          id?: number
+          session_end_time?: string
+          session_link_id?: string | null
+          session_start_time?: string
+          volunteer_link_id?: string | null
+          zone_id?: number | null
+          zone_name?: string
+        }
+        Relationships: []
+      }
+      volunteers: {
+        Row: {
+          created_at: string | null
+          email: string
+          first_name: string
+          id: number
+          last_name: string
+          organization: string | null
+          volunteer_link_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          first_name: string
+          id?: number
+          last_name: string
+          organization?: string | null
+          volunteer_link_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          first_name?: string
+          id?: number
+          last_name?: string
+          organization?: string | null
+          volunteer_link_id?: string | null
+        }
+        Relationships: []
+      }
+      zones: {
+        Row: {
+          description: string | null
+          estimated_time: number | null
+          id: number
+          name: string
+        }
+        Insert: {
+          description?: string | null
+          estimated_time?: number | null
+          id?: number
+          name: string
+        }
+        Update: {
+          description?: string | null
+          estimated_time?: number | null
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
