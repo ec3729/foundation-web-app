@@ -926,6 +926,19 @@ export default function CanvassingApp() {
               )}
             </div>
 
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-slate-700 mb-2">Occupancy Status</label>
+              <select
+                value={occupancyStatus}
+                onChange={(e) => setOccupancyStatus(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"
+              >
+                {OCCUPANCY_STATUSES.map((status) => (
+                  <option key={status} value={status}>{status}</option>
+                ))}
+              </select>
+            </div>
+
             <div className="flex space-x-4">
               <button onClick={() => handleBusinessVerification(true)}
                 className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-4 rounded-md font-medium hover:from-green-700 hover:to-green-800 flex items-center justify-center shadow-lg transform transition-transform hover:scale-105">
