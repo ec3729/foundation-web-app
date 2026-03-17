@@ -157,11 +157,12 @@ export default function DataPage() {
     if (!atImportPreview || atImportPreview.length === 0) return;
     setAtLoading(true);
     try {
-      // Strip airtableId before inserting
-      const rows = atImportPreview.map(({ airtableId, ...rest }) => {
+      const rows = atImportPreview.map((record) => {
         const out: any = {};
-        for (const [k, v] of Object.entries(rest)) {
-          out[k] = v === "" ? null : v;
+        for (const [airtableField, dbColumn] of Object.entries(fieldMapping)) {
+          if (dbColumn === "__skip__") continue;
+          const val = record[airtableField];
+          out[dbColumn] = val === "" ? null : val;
         }
         if (out.id === null || out.id === undefined) delete out.id;
         return out;
