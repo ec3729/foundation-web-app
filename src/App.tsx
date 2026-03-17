@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import CanvassingApp from "./pages/Canvassing";
 import AdminPage from "./pages/Admin";
+import DataPage from "./pages/Data";
 
 const queryClient = new QueryClient();
 
@@ -15,6 +16,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<CanvassingApp />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/data" element={<DataPage />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
