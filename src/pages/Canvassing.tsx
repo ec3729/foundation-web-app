@@ -426,6 +426,7 @@ export default function CanvassingApp() {
     if (isAddingNewBusiness) {
       finalNotes = finalNotes ? `This is a new business. ${finalNotes}` : "This is a new business.";
     }
+    finalNotes = finalNotes ? `[Occupancy: ${occupancyStatus}] ${finalNotes}` : `[Occupancy: ${occupancyStatus}]`;
 
     const correctionEntry = {
       storefrontId: storefront.storefrontId || storefront.storefront_id,
