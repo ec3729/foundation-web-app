@@ -38,6 +38,16 @@ import {
 } from "@/lib/supabase-storage";
 
 // Business category options
+const OCCUPANCY_STATUSES = [
+  "Vacant Lot",
+  "Building Under Construction",
+  "Occupied",
+  "Temporarily closed",
+  "Under Construction",
+  "Vacant",
+  "Not sure",
+];
+
 const BUSINESS_CATEGORIES = [
   "(Community) Cultural Space",
   "(Community) Educational / Childcare",
