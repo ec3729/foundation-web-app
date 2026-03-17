@@ -694,7 +694,9 @@ export default function CanvassingApp() {
 
   if (currentStep === "welcome") {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-800 to-slate-900 p-4">
+      <>
+        {resumeDialog}
+        <div className="min-h-screen bg-gradient-to-b from-slate-800 to-slate-900 p-4">
         <div className="max-w-md mx-auto pt-8">
           <div className="text-center mb-8">
             <WTCMainLogo />
