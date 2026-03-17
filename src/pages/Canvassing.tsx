@@ -38,6 +38,16 @@ import {
 } from "@/lib/supabase-storage";
 
 // Business category options
+const OCCUPANCY_STATUSES = [
+  "Vacant Lot",
+  "Building Under Construction",
+  "Occupied",
+  "Temporarily closed",
+  "Under Construction",
+  "Vacant",
+  "Not sure",
+];
+
 const BUSINESS_CATEGORIES = [
   "(Community) Cultural Space",
   "(Community) Educational / Childcare",
@@ -119,6 +129,7 @@ export default function CanvassingApp() {
   const [sessionStartTimeSet, setSessionStartTimeSet] = useState(false);
   const [showResumeDialog, setShowResumeDialog] = useState(false);
   const [pendingResumeData, setPendingResumeData] = useState<PersistedSessionState | null>(null);
+  const [occupancyStatus, setOccupancyStatus] = useState("Not sure");
 
   // Check for saved session on mount
   useEffect(() => {
@@ -367,6 +378,7 @@ export default function CanvassingApp() {
         publicBusiness: business?.publicBusiness || business?.public_business || "",
         notes: business?.notes || "",
         initialEncounterMade: business?.initialEncounterMade || business?.initial_encounter_made || "",
+        occupancyStatus,
       });
       setShowIntermediateDialog(true);
     } else {
@@ -414,6 +426,7 @@ export default function CanvassingApp() {
     if (isAddingNewBusiness) {
       finalNotes = finalNotes ? `This is a new business. ${finalNotes}` : "This is a new business.";
     }
+    finalNotes = finalNotes ? `[Occupancy: ${occupancyStatus}] ${finalNotes}` : `[Occupancy: ${occupancyStatus}]`;
 
     const correctionEntry = {
       storefrontId: storefront.storefrontId || storefront.storefront_id,
@@ -455,6 +468,7 @@ export default function CanvassingApp() {
       }
     }
     setProgress((prev) => ({ ...prev, completed: prev.completed + 1 }));
+    setOccupancyStatus("Not sure");
   };
 
   const handleGoBack = () => {
@@ -910,6 +924,19 @@ export default function CanvassingApp() {
                   </div>
                 </div>
               )}
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-slate-700 mb-2">Occupancy Status</label>
+              <select
+                value={occupancyStatus}
+                onChange={(e) => setOccupancyStatus(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"
+              >
+                {OCCUPANCY_STATUSES.map((status) => (
+                  <option key={status} value={status}>{status}</option>
+                ))}
+              </select>
             </div>
 
             <div className="flex space-x-4">
