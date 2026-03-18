@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   ChevronRight,
@@ -130,6 +130,7 @@ export default function CanvassingApp() {
   const [showResumeDialog, setShowResumeDialog] = useState(false);
   const [pendingResumeData, setPendingResumeData] = useState<PersistedSessionState | null>(null);
   const [occupancyStatus, setOccupancyStatus] = useState("Not sure");
+  const businessNameTouchedRef = useRef(false);
 
   // Check for saved session on mount
   useEffect(() => {
@@ -266,6 +267,7 @@ export default function CanvassingApp() {
       });
       setShowCorrectionForm(false);
       setIsAddingNewBusiness(false);
+      businessNameTouchedRef.current = false;
       const currentBiz = getCurrentBusiness();
       setConfirmedBusinessData({
         businessName: correctionFormData.businessName || "",
@@ -628,7 +630,12 @@ export default function CanvassingApp() {
                 <label className="block text-sm font-medium text-slate-700 mb-1">Business Name</label>
                 <input type="text" className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
                   value={correctionFormData.businessName || ""}
-                  onFocus={() => setCorrectionFormData({ ...correctionFormData, businessName: "" })}
+                  onFocus={() => {
+                    if (!businessNameTouchedRef.current) {
+                      businessNameTouchedRef.current = true;
+                      setCorrectionFormData({ ...correctionFormData, businessName: "" });
+                    }
+                  }}
                   onChange={(e) => setCorrectionFormData({ ...correctionFormData, businessName: e.target.value })}
                   placeholder="Tap to enter business name..." />
               </div>
@@ -691,7 +698,7 @@ export default function CanvassingApp() {
                   placeholder="Share more details about the property" />
               </div>
               <div className="flex space-x-4 pt-4">
-                <button onClick={() => { setShowCorrectionForm(false); setIsAddingNewBusiness(false); setSelectedCategoryGroup(null); }}
+                <button onClick={() => { setShowCorrectionForm(false); setIsAddingNewBusiness(false); setSelectedCategoryGroup(null); businessNameTouchedRef.current = false; }}
                   className="flex-1 bg-gradient-to-r from-slate-400 to-slate-500 text-white py-3 px-4 rounded-md font-medium hover:from-slate-500 hover:to-slate-600 shadow-lg">
                   Cancel
                 </button>
@@ -1046,6 +1053,7 @@ export default function CanvassingApp() {
               setConfirmedBusinessData({});
               setCorrectionFormData({});
               setSelectedCategoryGroup(null);
+              businessNameTouchedRef.current = false;
             }}
               className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-3 px-4 rounded-md font-medium hover:from-red-600 hover:to-red-700 mt-6 shadow-lg transform transition-transform hover:scale-105">
               Start New Session
