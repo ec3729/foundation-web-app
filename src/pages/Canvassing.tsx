@@ -476,8 +476,9 @@ export default function CanvassingApp() {
     if (currentBusinessIndexWithinStorefront > 0) {
       setCurrentBusinessIndexWithinStorefront(currentBusinessIndexWithinStorefront - 1);
     } else if (currentStorefrontIndex > 0) {
+      const prevStorefrontBusinessCount = storefronts[currentStorefrontIndex - 1]?.businesses?.length ?? 0;
       setCurrentStorefrontIndex(currentStorefrontIndex - 1);
-      setCurrentBusinessIndexWithinStorefront(0);
+      setCurrentBusinessIndexWithinStorefront(Math.max(0, prevStorefrontBusinessCount - 1));
     } else {
       const sortedZones = [...selectedZones].sort((a, b) => a - b);
       const currentZoneIndex = sortedZones.indexOf(currentZone!);
